@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Produtos;
+use App\Categoria;
+use DB;
 
 class ControladorProduto extends Controller
 {
@@ -13,7 +16,9 @@ class ControladorProduto extends Controller
      */
     public function index()
     {
-        return view('produtos');
+        $produtos = DB::table('produtos')->join('categorias','produtos.categoria_id','=','categorias.id')->select('produtos.*','categorias.nome as nome_cat')->get();
+        
+        return view('produtos',compact('produtos'));
     }
 
     /**
@@ -23,7 +28,10 @@ class ControladorProduto extends Controller
      */
     public function create()
     {
-        //
+
+        $categorias = Categoria::all();
+
+        return view('novoproduto',compact('categorias'));
     }
 
     /**
@@ -34,7 +42,15 @@ class ControladorProduto extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $p = new Produtos();
+        $p->nome = $request->input('nomeProduto');
+        $p->estoque = $request->input('quantidadeEstoque');
+        $p->preco = $request->input('precoProduto');
+        $p->categoria_id = $request->input('categoria');
+
+        $p->save();
+
+        return redirect('/produtos');;
     }
 
     /**
@@ -79,6 +95,15 @@ class ControladorProduto extends Controller
      */
     public function destroy($id)
     {
-        //
+        $p = Produtos::find($id);
+
+        if(isset($p)){
+
+            $p->delete();
+
+        }
+
+        return redirect('/produtos');
+
     }
 }
