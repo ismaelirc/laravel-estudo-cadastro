@@ -9,15 +9,24 @@ use DB;
 
 class ControladorProduto extends Controller
 {
+
+    public function index(){
+
+        $produtos = DB::table('produtos')->join('categorias','produtos.categoria_id','=','categorias.id')->select('produtos.*','categorias.nome as nome_cat')->get();
+       
+        return json_encode($produtos);
+
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function indexView()
     {
         $produtos = DB::table('produtos')->join('categorias','produtos.categoria_id','=','categorias.id')->select('produtos.*','categorias.nome as nome_cat')->get();
-        
+       
         return view('produtos',compact('produtos'));
     }
 
@@ -106,4 +115,5 @@ class ControladorProduto extends Controller
         return redirect('/produtos');
 
     }
+
 }
