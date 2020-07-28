@@ -51,15 +51,16 @@ class ControladorProduto extends Controller
      */
     public function store(Request $request)
     {
+
         $p = new Produtos();
-        $p->nome = $request->input('nomeProduto');
-        $p->estoque = $request->input('quantidadeEstoque');
-        $p->preco = $request->input('precoProduto');
-        $p->categoria_id = $request->input('categoria');
+        $p->nome = $request->input('nome');
+        $p->estoque = $request->input('estoque');
+        $p->preco = $request->input('preco');
+        $p->categoria_id = $request->input('categoria_id');
 
         $p->save();
 
-        return redirect('/produtos');;
+        return json_encode($p);
     }
 
     /**
@@ -70,7 +71,13 @@ class ControladorProduto extends Controller
      */
     public function show($id)
     {
-        //
+        $p = Produtos::find($id);
+
+        if(isset($p)){
+            return json_encode($p);
+        }
+
+        return response('ERROR',404);
     }
 
     /**
@@ -93,8 +100,24 @@ class ControladorProduto extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-    }
+        $p = Produtos::find($id);
+
+        if(isset($p)){
+
+            $p->nome = $request->input('nome');
+            $p->estoque = $request->input('estoque');
+            $p->preco = $request->input('preco');
+            $p->categoria_id = $request->input('categoria_id');
+    
+            $p->save();
+    
+            return json_encode($p);
+            
+        }
+
+        return response('ERROR',404);
+
+    }   
 
     /**
      * Remove the specified resource from storage.
@@ -109,10 +132,10 @@ class ControladorProduto extends Controller
         if(isset($p)){
 
             $p->delete();
-
+            return response('OK',200);
         }
 
-        return redirect('/produtos');
+        return response('ERROR',404);
 
     }
 

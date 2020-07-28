@@ -30,7 +30,7 @@
   <div class="modal" tabindex="-1" role="dialog" id="dlgProdutos">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form class="form-horizontal" action="/produtos" method="POST">
+            <form class="form-horizontal" action="/produtos" method="POST" name="formProduto" id="formProduto">
                 <div class="modal-header">
                     <h5 class="modal-header">Novo produto</h5>
                 </div>
@@ -38,19 +38,19 @@
                     <input type="hidden" id="id" class="form-control" />
                     <div class="form-group">
                         <label for="nomeProduto">Nome do produto</label>
-                        <input type="text" class="form-control" name="nomeProduto" id="nomeProduto" placeholder="Produto" />
+                        <input type="text" class="form-control" name="nome" id="nome" placeholder="Produto" />
                     </div>
                     <div class="form-group">
                         <label for="quantidadeEstoque">Quantidade em estoque</label>
-                        <input type="number" class="form-control" name="quantidadeEstoque" id="quantidadeEstoque" placeholder="Produto" />
+                        <input type="number" class="form-control" name="estoque" id="estoque" placeholder="Produto" />
                     </div>
                     <div class="form-group">
                         <label for="precoProduto">Preço</label>
-                        <input type="number" class="form-control" name="precoProduto" id="precoProduto" placeholder="R$ 600" />
+                        <input type="number" class="form-control" name="preco" id="preco" placeholder="R$ 600" />
                     </div>
                     <div class="form-group">
                         <label for="categoria">Categoria</label>
-                        <select class="form-control" name="categoria" id="categoria">
+                        <select class="form-control" name="categoria_id" id="categoria_id">
                         </select>
                     </div>
                 </div>
@@ -75,10 +75,11 @@
         });
         
         function novoProduto(){
-            
-            $("#nomeProduto").val('');
-            $("#quantidadeEstoque").val('');
-            $("#precoProduto").val('');
+
+            $("#id").val(''); 
+            $("#nome").val('');
+            $("#estoque").val('');
+            $("#preco").val('');
             
             $("#dlgProdutos").modal('show');
         }
@@ -89,7 +90,7 @@
                 for(i=0; i < data.length; i++){
                     op = '<option value="'+data[i].id+'">'+data[i].nome + '</option>';
 
-                    $("#categoria").append(op);
+                    $("#categoria_id").append(op);
                 }
             });
         }
@@ -105,14 +106,71 @@
                         '<td>'+data[i].preco+'</td>'+
                         '<td>'+data[i].nome_cat+'</td>'+
                         '<td>'+
-                            '<button class="btn btn-sm btn-primary">Editar</button>'+
-                            '<button class="btn btn-sm btn-danger">apagar</button>'+
+                            '<button class="btn btn-sm btn-primary" onclick="editar('+data[i].id+')">Editar</button>'+
+                            '<button class="btn btn-sm btn-danger" onclick="remover('+data[i].id+')">apagar</button>'+
                         '</td></tr>';
 
                     $("#tableProdutos tbody").append(tr);
                 }
             });
         }
+
+        function criarProduto(){
+            prod = {nome: $("#nome").val(),
+                    preco: $("#preco").val(), 
+                    estoque: $("#estoque").val(), 
+                    categoria_id:$("#categoria_id").val()
+                };
+
+                $.post('/api/produtos',prod,function(data){
+                    console.log(data);
+                });
+
+        }
+
+
+        function remover(id){
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/produtos/'+id,
+                context: this,
+                success: function(){
+                    $("#tableProdutos tbody").empty();
+                    carregarProdutos();
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        }
+
+        function editar(id){
+
+            $.getJSON('/api/produtos/'+id,function(data){
+
+                $("#id").val(data.id);
+                $("#nome").val(data.nome);
+                $("#estoque").val(data.estoque);
+                $("#preco").val(data.preco);
+
+                $("#categoria_id").val(data.categoria_id);
+            
+                $("#dlgProdutos").modal('show');
+               
+            });
+
+        }
+
+
+        $("#formProduto").submit(function(event){
+            event.preventDefault();
+
+            criarProduto();
+            $("#dlgProdutos").modal('hide');
+            $("#tableProdutos tbody").empty();
+            carregarProdutos();
+
+        });
 
         $(function(){
             carregarCategoria();
