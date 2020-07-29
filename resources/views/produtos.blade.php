@@ -128,6 +128,30 @@
 
         }
 
+        function salvarProduto(){
+            prod = {
+                    id: $("#id").val(),
+                    nome: $("#nome").val(),
+                    preco: $("#preco").val(), 
+                    estoque: $("#estoque").val(), 
+                    categoria_id:$("#categoria_id").val()
+                };
+
+            $.ajax({
+                type: 'PUT',
+                url: '/api/produtos/'+prod.id,
+                context: this,
+                data: prod,
+                success: function(){
+                    console.log('ok');
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+
+        }
+
 
         function remover(id){
             $.ajax({
@@ -165,7 +189,13 @@
         $("#formProduto").submit(function(event){
             event.preventDefault();
 
-            criarProduto();
+            if($("#id").val() != ''){
+                salvarProduto();
+            }else{
+                criarProduto();
+            }
+
+            
             $("#dlgProdutos").modal('hide');
             $("#tableProdutos tbody").empty();
             carregarProdutos();
